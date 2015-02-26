@@ -464,63 +464,65 @@ class GiftAid extends GovTalk
         $package->writeElement('RegNo', $this->getClaimingOrganisation()->getRegNo());
         $package->endElement(); # Regulator
 
-        $package->startElement('Repayment');
-        $earliestDate = strtotime(date('Y-m-d'));
-        foreach ($donor_data as $d) {
-            if (isset($d['donation_date'])) {
-                $dDate = strtotime($d['donation_date']);
-                $earliestDate = ($dDate < $earliestDate) ? $dDate : $earliestDate;
-            }
-            $package->startElement('GAD');
-            if (!isset($d['aggregation']) or empty($d['aggregation'])) {
-                $package->startElement('Donor');
-                $person = new Individual(
-                    $d['title'],
-                    $d['first_name'],
-                    $d['last_name'],
-                    '',
-                    $d['house_no'],
-                    $d['postcode']
-                );
+        		if (!empty($donor_data)) {
+	        $package->startElement('Repayment');
+	        $earliestDate = strtotime(date('Y-m-d'));
+	        foreach ($donor_data as $d) {
+	            if (isset($d['donation_date'])) {
+	                $dDate = strtotime($d['donation_date']);
+	                $earliestDate = ($dDate < $earliestDate) ? $dDate : $earliestDate;
+	            }
+	            $package->startElement('GAD');
+	            if (!isset($d['aggregation']) or empty($d['aggregation'])) {
+	                $package->startElement('Donor');
+	                $person = new Individual(
+	                    $d['title'],
+	                    $d['first_name'],
+	                    $d['last_name'],
+	                    '',
+	                    $d['house_no'],
+	                    $d['postcode']
+	                );
 
-                $title = $person->getTitle();
-                $fore = $person->getForename();
-                $sur = $person->getSurname();
-                $house = $person->getHouseNum();
-                $postcode = $person->getPostcode();
+	                $title = $person->getTitle();
+	                $fore = $person->getForename();
+	                $sur = $person->getSurname();
+	                $house = $person->getHouseNum();
+	                $postcode = $person->getPostcode();
 
-                if (!empty($title)) {
-                    $package->writeElement('Ttl', $title);
-                }
-                if (!empty($fore)) {
-                    $package->writeElement('Fore', $fore);
-                }
-                if (!empty($sur)) {
-                    $package->writeElement('Sur', $sur);
-                }
-                if (!empty($house)) {
-                    $package->writeElement('House', $house);
-                }
-                if (!empty($postcode)) {
-                    $package->writeElement('Postcode', $postcode);
-                }
-                $package->endElement(); # Donor
-            } elseif (!empty($d['aggregation'])) {
-                $package->writeElement('AggDonation', $d['aggregation']);
-            }
-            if (isset($d['sponsored']) and $d['sponsored'] === true) {
-                $package->writeElement('Sponsored', 'yes');
-            }
-            $package->writeElement('Date', $d['donation_date']);
-            $package->writeElement('Total', number_format($d['amount'], 2, '.', ''));
-            $package->endElement(); # GAD
-        }
-        $package->writeElement('EarliestGAdate', date('Y-m-d', $earliestDate));
+	                if (!empty($title)) {
+	                    $package->writeElement('Ttl', $title);
+	                }
+	                if (!empty($fore)) {
+	                    $package->writeElement('Fore', $fore);
+	                }
+	                if (!empty($sur)) {
+	                    $package->writeElement('Sur', $sur);
+	                }
+	                if (!empty($house)) {
+	                    $package->writeElement('House', $house);
+	                }
+	                if (!empty($postcode)) {
+	                    $package->writeElement('Postcode', $postcode);
+	                }
+	                $package->endElement(); # Donor
+	            } elseif (!empty($d['aggregation'])) {
+	                $package->writeElement('AggDonation', $d['aggregation']);
+	            }
+	            if (isset($d['sponsored']) and $d['sponsored'] === true) {
+	                $package->writeElement('Sponsored', 'yes');
+	            }
+	            $package->writeElement('Date', $d['donation_date']);
+	            $package->writeElement('Total', number_format($d['amount'], 2, '.', ''));
+	            $package->endElement(); # GAD
+	        }
+	        $package->writeElement('EarliestGAdate', date('Y-m-d', $earliestDate));
 
-        if (!empty($this->gaAdjustment)) {
-            $package->writeElement('Adjustment', number_format($this->gaAdjustment, 2, '.', ''));
-        }
-        $package->endElement(); # Repayment
+	        if (!empty($this->gaAdjustment)) {
+	            $package->writeElement('Adjustment', number_format($this->gaAdjustment, 2, '.', ''));
+	        }
+	        $package->endElement(); # Repayment
+	    }
 
         $package->startElement('GASDS');
         $package->writeElement(
